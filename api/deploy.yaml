@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queries-api
+  labels:
+    app: queries-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queries-api
+  template:
+    metadata:
+      labels:
+        app: queries-api
+    spec:
+      containers:
+      - name: queries-api
+        image: 401413892014.dkr.ecr.us-east-1.amazonaws.com/queries-api:IMAGE_VERSION
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: DB
+          valueFrom:
+            secretKeyRef:
+              name: query-db-secret
+              key: db-string
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queries-api-svc
+spec:
+  selector:
+    app: queries-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
